@@ -53,6 +53,7 @@ end
 file_courses = Read_courses.new(file_name)
 line_split = file_courses.read_file
 
+
 courses = []
 line_split.each do |line|
     courses << Course.new(*line)
