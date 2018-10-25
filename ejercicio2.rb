@@ -21,6 +21,8 @@
 #         En ambos el métodos argumento por defecto debe ser la fecha de hoy.
 #         Ambos métodos deben levantar una excepción si la fecha recibida es >= 2018-01-01.
 
+require "date"
+
 file_name = 'curso.txt'
 
 class Read_courses
@@ -42,24 +44,45 @@ class Read_courses
 end 
 
 class Course 
-    attr_reader :course
-    attr_reader :course_dates
-    def initialize(course, *course_dates)
+    attr_reader :course, :course_begin, :course_end
+    def initialize(course, course_begin, course_end)
         @course = course
-        @course_dates = course_dates.map(&:to_i)  # A cada uno &: 
+        @course_begin = Date.parse(course_begin)  
+        @course_end   = Date.parse(course_end) 
+    end
+    def begins_before(reference_date)
+        raise ArgumentError.new('reference date has wrong format')  if reference_date.class != Date 
+        raise ArgumentError.new('reference date is higer 2018-01-01') if reference_date >= Date.parse('2018-01-01')
+        @course_begin < reference_date 
     end 
+    def ending_after(reference_date)
+        raise ArgumentError.new('reference date has wrong format') if reference_date.class != Date     
+        raise ArgumentError.new('reference date is higer 2018-01-01') if reference_date >= Date.parse('2018-01-01')
+        @course_end > reference_date 
+    end          
 end  
 
 file_courses = Read_courses.new(file_name)
 line_split = file_courses.read_file
-
 
 courses = []
 line_split.each do |line|
     courses << Course.new(*line)
 end     
 
-print courses  
+puts 'Todos los Cursos'
+courses.each do |course| 
+    puts "Curso: #{course.course}  inicia el #{course.course_begin} y termina el #{course.course_end}"
+end 
 
+puts "\nCursos que inician antes del 30 de abril del 2017"
+reference_date = Date.parse("2017-04-30")
+courses.select { |course| course.begins_before(reference_date) }.each do |course|
+    puts "Curso: #{course.course}  inicia el #{course.course_begin} y termina el #{course.course_end}"
+end 
 
-
+puts "\nCursos que finalizan despues del primero de noviembre del 2017"
+reference_date = Date.parse("2017-11-01")
+courses.select { |course| course.ending_after(reference_date) }.each do |course|
+    puts "Curso: #{course.course}  inicia el #{course.course_begin} y termina el #{course.course_end}"
+end 
