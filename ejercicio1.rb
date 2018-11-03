@@ -19,77 +19,81 @@
 
 file_name = 'casino.txt'
 
-class Read_casino
-    attr_accessor :file_name
+class Table 
+    attr_reader :table, :cash_collection, :max_day, :max_amt, :avg_collection
+    def initialize(table, *cash_collection)
+        @table = table
+        @cash_collection = cash_collection.map(&:to_i)  # A cada uno &: 
+        max_collection()
+        avgerage_collection()
+    end 
+
+    def max_collection
+        @max_amt = 0
+        @max_day = 0
+        @cash_collection.each_with_index do |amt, day|
+            if amt > @max_amt
+                @max_amt = amt
+                @max_day = day
+            end 
+        end     
+    end
+
+    def avgerage_collection
+        sum = @cash_collection.reduce(:+)
+        @avg_collection = sum / @cash_collection.size
+    end 
+end    
+
+class Casino
+    attr_accessor :file_name, :tables
     def initialize(file_name) 
         @file_name = file_name
+        read_file()
     end    
 
     def read_file
         file = File.open(@file_name, 'r')
-        data = file.readlines
+        data = file.readlines.map(&:chomp)
         file.close
-        line_split = []
+        @tables = []
         data.each do |line|
-            line_split << line.chomp.split(', ')
-        end     
-        return line_split
-    end 
-end 
-
-class Table 
-    attr_reader :table
-    attr_reader :cash_collection
-    def initialize(table, *cash_collection)
-        @table = table
-        @cash_collection = cash_collection.map(&:to_i)  # A cada uno &: 
-    end 
-end    
-
-def max_collection(tables)
-    max_collection = []
-    global_max = 0
-    tables.each do |table|
-        max_amt = 0
-        max_day   = 0
-        table.cash_collection.each_with_index do |amt, day|
-            if amt > max_amt
-                max_amt = amt
-                max_day = day
-            end 
-        end     
-        if max_amt > global_max
-            max_collection = [table.table, max_day, max_amt]
-            global_max = max_amt
+            @tables << Table.new(*line.split(', '))
         end
-    end 
-    return max_collection
-end 
-
-def avg_collection(tables)
-    avg_collection = 0
-    sum = 0
-    i = 0
-    tables.each do |table|
-        sum += table.cash_collection.inject(:+)
-        i += table.cash_collection.length    
     end
-    avg_collection = sum / i.to_f
+
+    def find_max
+        max_amt_global = 0
+        max_day_global = nil
+        max_table = ''
+        @tables.each do |table|
+            if table.max_amt > max_amt_global
+                max_amt_global = table.max_amt
+                max_day_global = table.max_day
+                max_table = table.table
+            end 
+        end 
+        max_coll_global = [max_table, max_amt_global, max_day_global]
+    end 
+
+    def calculate_average
+        total_collection = 0
+        @tables.each do |table|
+            total_collection += table.avg_collection
+        end     
+        avgerage_collection = total_collection / @tables.size
+    end 
 end 
 
-casino = Read_casino.new(file_name)
-line_split = casino.read_file
+casino = Casino.new(file_name)
 
-tables = []
-line_split.each do |line|
-    tables << Table.new(*line)
-end     
+max_collection = casino.find_max
 
-max_coll = max_collection(tables)
-avg_coll = avg_collection(tables)
+puts "La maxima recolección de dinero, fue de $ #{max_collection[1]}, el día #{max_collection[2]} en la #{max_collection[0]}"
 
-puts "La máxima recaudación fue en la #{max_coll[0]}, con $ #{max_coll[2]} el día #{max_coll[1] + 1}"
-puts "El promedio de recaudación es: #{avg_coll}"
+puts "La recolección promedio fue de #{casino.calculate_average}"
+
+
 
 
 

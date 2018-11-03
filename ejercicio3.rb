@@ -77,7 +77,7 @@ class Roulette
             puts "\nEl numero #{most_repeated_numbers[0]} es el mas repetido con #{max_times} veces"
         else
 
-            print "Los numero mas repetido con #{max_times} veces, son los numeros: \n"
+            print "Los numeros mas repetido con #{max_times} veces, son los numeros: \n"
             most_repeated_numbers.each_with_index do |number, index|
                 print "#{number} "
                 if index == (most_repeated_numbers.size - 2)
